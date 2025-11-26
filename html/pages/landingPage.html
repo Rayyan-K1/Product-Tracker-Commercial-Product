@@ -1,0 +1,17 @@
+<div id="LandingPage">
+    <div class="wrapper fadeInDown">
+        <div id="formContent">
+            <div class="fadeIn first py-3">
+                <img src="./src/resources/savile19_Logo.png" width="50px;" style="opacity: 0.5" />
+            </div>
+            <form>
+                <input type="text" id="loginInputs" class="fadeIn second" name="login" placeholder="Enter Email" v-model="userCredentials.email">
+                <input type="text" id="loginInputs" class="fadeIn third" name="login" placeholder="Enter Password" v-model="userCredentials.password">
+                <input type="button" id="loginButton" class="fadeIn fourth mt-3 mb-3" style="cursor: pointer !important;" value="Log In" v-on:click="login(userCredentials.email, userCredentials.password);">
+            </form>
+            <div class="alert alert-danger" v-if="errorMessage">
+                {{errorMessage}}
+            </div>
+        </div>
+    </div>
+</div>

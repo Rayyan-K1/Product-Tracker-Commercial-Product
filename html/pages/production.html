@@ -1,0 +1,277 @@
+<div id="ProductionPage" class="page-content">
+    <section id="subNavigationBar" class="row">
+        <div class="bg-blue text-white py-3 border-right col subNav" :class="selectedSubNavCategory ? subNavItem.id == selectedSubNavCategory.id ? 'selectedAdmin' : '' : ''" v-for="subNavItem in subNavigationCategories" v-on:click="selectedSubNavCategory = subNavItem; clear(); initialise();">
+            <div class="text-center">{{subNavItem.name}}</div>
+        </div>
+    </section>
+    <section id="content">
+        <template v-if="selectedSubNavCategory ? selectedSubNavCategory.id == 'createProcess' : ''">
+            <div class="btn btn-outline-primary mt-5 mx-5" v-if="state != 'init'" v-on:click="goBack(state == 'EditStage' ? 'ViewProcess' : null);">
+                Back
+            </div>
+            <div class="px-5 p-divider">
+                <template v-if="state == 'init' || state == 'CreateProcess'">
+                    <div class="p-5 text-center bg-light" style="margin-top: 58px;">
+                        <h1 class="mb-3">Create Production Process</h1>
+                        <template v-if="state == 'CreateProcess'">
+                            <div class="text-danger mt-3">Please fill out the mandatory fields below (*)</div>
+                        </template>
+                        <template v-else>
+                            <div class="btn btn-outline-dark" v-on:click="selectedSubNavCategory = subNavigationCategories[1]">View Existing Processes</div>
+                        </template>
+                    </div>
+                </template>
+                <div class="mt-5 p-divider">
+                    <template v-if="state == 'init'">
+                        <div :style="'display: grid; grid-template-columns: repeat(' + ($root.userCredentials.admin == 1 ? 2 : 1)+ ', 1fr); grid-gap: 10px; text-align: center;'">
+                            <template v-if="$root.userCredentials.admin == 1">
+                                <div class="mx-5" :disabled="$root.userCredentials.admin == 1">
+                                    <div class="card w-100 zoom" style="height: 50vh; cursor: pointer" v-on:click="changeState('CreateProcess')">
+                                        <div class="card-body text-center d-flex align-items-center justify-content-center">
+                                            <i class="icon icon-folder-add" style="font-size: 40px;"></i>
+                                            <h3 class="px-3 card-text">Create New Process</h3>
+                                        </div>
+                                    </div>
+                                </div>
+                            </template>
+                            <div class="mx-5">
+                                <div class="card w-100 zoom" style="height: 50vh; cursor: pointer" v-on:click="changeState('ViewProcesses')">
+                                    <div class="card-body text-center d-flex align-items-center justify-content-center">
+                                        <i class="icon icon-edit" style="font-size: 40px;"></i>
+                                        <h3 class="px-3 card-text">Edit Existing Process</h3>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </template>
+                    <template v-if="state == 'CreateProcess'">
+                        <div class="mt-5" style="display: grid; grid-template-columns: repeat(3, 1fr); grid-gap: 10px;">
+                            <div style="grid-area: span 1 / span 3;">
+                                <label>Process Name:</label>
+                                <div class="input-group mb-3">
+                                    <input type="text" class="form-control" maxlength="50" placeholder="maximum text entry - 50 characters" v-model="productionProcess.createProcess.ProcessName">
+                                </div>
+                            </div>
+                            <div style="grid-area: span 1 / span 3;">
+                                <div class="input-group mb-3">
+                                    <div class="btn btn-primary w-100" :class="canAddNewProcess ? null : 'disabled'" v-on:click="canAddNewProcess ? addProcess() : null">Add New Process</div>
+                                </div>
+                            </div>
+                        </div>
+                    </template>
+                    <template v-if="state == 'ViewProcesses'">
+                        <div class="p-5 text-center bg-light" style="margin-top: 58px;">
+                            <h1 class="mb-3">Edit Production Process</h1>
+                            <div class="container">
+                                <div class="d-flex justify-content-center">
+                                    <div class="searchbar input-group mb-3">
+                                        <input class="search_input form-control" type="search" placeholder="Enter Process Name" v-model="search.Input">
+                                        <a href="#" class="search_icon"><i class="fas fa-search"></i></a>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="p-divider pt-3" v-if="search.Input">
+                            <div class="row border-bottom border-light p-3 m-1" v-for="(process, processIndex) in searchProductionProcessData()" :class="selectedProcessIndex == processIndex ? 'selected' : null" v-on:click="selectProcess(processIndex, process)">
+                                <div class="col-10 p-1" :id="processIndex">
+                                    {{process.ProductionProcessName}}
+                                </div>
+                                <div class="col-2 p-1" v-if="selectedProcessIndex == processIndex">
+                                    <div class="btn btn-primary" style="width: 100%" v-on:click="changeState('ViewProcess')">Edit Process</div>
+                                </div>
+                            </div>
+                            <hr />
+                        </div>
+                    </template>
+                    <template v-if="state == 'ViewProcess'">
+                        <div class="row">
+                            <template v-if="getSelectedProcess.length">
+                                <div class="col text-center font-weight-bolder" v-for="stage in getSelectedProcess">
+                                    {{stage.name}}
+                                    <div class="text-muted">
+                                        {{stage.stage}}
+                                    </div>
+                                    <div class="pt-3">
+                                        <!-- <span class="dot"></span> -->
+                                        <span class="dot" v-on:click="changeState('EditStage', stage)"></span>
+                                    </div>
+                                </div>
+                            </template>
+                            <template v-else>
+                                <div class="col text-center font-weight-bolder">
+                                    <h3>No Stages To Show</h3>
+                                </div>
+                            </template>
+                        </div>
+                        <div class="pt-5" style="display: grid; grid-template-columns: repeat(6, 1fr); grid-gap: 10px;">
+                            <div style="grid-area: span 1 / span 2;">
+                                <div class="input-group mb-3">
+                                    <button type="button" class="btn btn-outline-primary w-100" v-on:click="changeState('AddStage')">Add Stage</button>
+                                </div>
+                            </div>
+                            <div style="grid-area: span 1 / span 2;">
+                                <div class="input-group mb-3">
+                                    <button type="button" class="btn btn-outline-danger w-100" v-on:click="openPopup('deleteProductionProcess');">Delete Process</button>
+                                </div>
+                            </div>
+                            <div style="grid-area: span 1 / span 2;">
+                                <div class="input-group mb-3">
+                                    <button type="button" class="btn btn-success w-100" v-on:click="changeState('ViewProcesses'); updateProcess();">Save Process</button>
+                                </div>
+                            </div>
+                        </div>
+                    </template>
+                    <template v-if="state == 'AddStage'">
+                        <div class="mt-5" style="display: grid; grid-template-columns: repeat(6, 1fr); grid-gap: 10px;">
+                            <div style="grid-area: span 1 / span 3;">
+                                <label>Stage Name:</label>
+                                <div class="input-group mb-3">
+                                    <input type="text" class="form-control" maxlength="50" placeholder="maximum text entry - 50 characters" v-model="productionProcess.createStage.stageName">
+                                </div>
+                            </div>
+                            <div style="grid-area: span 1 / span 3;">
+                                <label>Stage Description:</label>
+                                <div class="input-group mb-3">
+                                    <textarea class="form-control" maxlength="250" placeholder="maximum text entry - 250 characters" v-model="productionProcess.createStage.stageDescription"></textarea>
+                                </div>
+                            </div>
+                            <div class="pt-5" style="grid-area: span 1 / span 6;">
+                                <div style="grid-area: span 1 / span 6;">
+                                    <div class="input-group mb-3">
+                                        <button type="button" class="btn btn-primary btn-lg w-100" v-on:click="addStage()">Add Stage To Process</button>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </template>
+                    <template v-if="state == 'EditStage'">
+                        <div class="mt-5" style="display: grid; grid-template-columns: repeat(2, 1fr); grid-gap: 10px;">
+                            <div style="grid-area: span 1 / span 2;">
+                                <label>Stage Name:</label>
+                                <div class="input-group mb-3">
+                                    <input type="text" class="form-control" placeholder="e.g: Create Process" v-model="selectedProcess.SelectedStage.name">
+                                </div>
+                            </div>
+                            <div style="grid-area: span 1 / span 2;">
+                                <label>Stage Description:</label>
+                                <div class="input-group mb-3">
+                                    <textarea class="form-control" placeholder="e.g: Create Process" v-model="selectedProcess.SelectedStage.stage"></textarea>
+                                </div>
+                            </div>
+                            <div class="pt-5">
+                                <div style="grid-area: span 1 / span 2;">
+                                    <div class="input-group mb-3">
+                                        <button type="button" class="btn btn-outline-danger btn-lg w-100" v-on:click="deleteStage();">Delete</button>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="pt-5">
+                                <div>
+                                    <div class="input-group mb-3">
+                                        <button type="button" class="btn btn-primary btn-lg w-100" v-on:click="editStage();">Save</button>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </template>
+                </div>
+            </div>
+        </template>
+        <template v-if="selectedSubNavCategory ? selectedSubNavCategory.id == 'viewProcesses' : ''">
+            <div class="btn btn-outline-primary mt-5 mx-5" v-if="state != 'init'" v-on:click="goBack(state == 'EditStage' ? 'ViewProcess' : null);">
+                Back
+            </div>
+            <div class="btn btn-outline-primary mt-5 mx-5" v-if="state == 'init'" v-on:click="selectedSubNavCategory = subNavigationCategories[0]">
+                Back
+            </div>
+            <template v-if="viewState == 'init'">
+                <div class="px-5 p-divider">
+                    <div class="p-5 text-center bg-light" style="margin-top: 58px;">
+                        <h1 class="mb-3">View Production Processes</h1>
+                        <div class="btn btn-outline-dark" v-on:click="selectedSubNavCategory = subNavigationCategories[0]">Create New Process</div>
+                    </div>
+                    <div class="p-divider pt-3">
+                        <div class="row border-bottom border-light p-3 m-1" v-for="(process, processIndex) in data" v-on:click="selectProcess(processIndex, process); changeState('ViewProcess'); viewState = 'view'">
+                            <div class="col-10 p-1" :id="processIndex">
+                                {{process.ProductionProcessName}}
+                            </div>
+                        </div>
+                        <hr />
+                    </div>
+                </div>
+            </template>
+            <template v-if="viewState == 'view'">
+                <div class="px-5 p-divider">
+                    <div class="mt-5 p-divider">
+                        <div class="p-5 text-center bg-light mb-3" style="margin-top: 58px;">
+                            <h1 class="mb-3">{{process.ProcessName}}</h1>
+                        </div>
+                        <div class="row">
+                            <template v-if="getSelectedProcess.length">
+                                <div class="col text-center font-weight-bolder" v-for="stage in getSelectedProcess">
+                                    {{stage.name}}
+                                    <div class="text-muted">
+                                        {{stage.stage}}
+                                    </div>
+                                    <div class="pt-3">
+                                        <!-- <span class="dot"></span> -->
+                                        <span class="dot" v-on:click="changeState('EditStage', stage)"></span>
+                                    </div>
+                                </div>
+                            </template>
+                            <template v-else>
+                                <div class="col text-center font-weight-bolder">
+                                    <h3>No Stages To Show</h3>
+                                </div>
+                            </template>
+                        </div>
+                    </div>
+                </div>
+            </template>
+        </template>
+    </section>
+    <div class="toast toast-process-added toast-custom hide" role="alert" data-delay="1500" style="display: flex;text-align: center;align-items: center;justify-content: center;align-content: center;">
+        <div>
+            <h6>Process has been added successfully</h6>
+        </div>
+    </div>
+    <div class="modal fade" id="popup-deleteProductionProcess" tabindex="-1" role="dialog" aria-hidden="true">
+        <div class="modal-dialog modal-dialog-centered modal-lg" role="document">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title">Confirm Deletion</h5>
+                    <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                        <span aria-hidden="true">&times;</span>
+                    </button>
+                </div>
+                <div class="modal-body">
+                    <div class="text-center">Are you sure you want to delete this Production Process?</div>
+                    <div class="text-muted text-center">This action is irreversible</div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-dismiss="modal">Cancel</button>
+                    <button type="button" class="btn btn-danger" v-on:click="deleteProductionProcess();" data-dismiss="modal">Confirm Deletion</button>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="modal fade" id="popup-editProcessAlert" tabindex="-1" role="dialog" aria-hidden="true">
+        <div class="modal-dialog modal-dialog-centered modal-lg" role="document">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title"></h5>
+                    <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                        <span aria-hidden="true">&times;</span>
+                    </button>
+                </div>
+                <div class="modal-body">
+                    <div class="text-center alert alert-info">Please edit the newly created process</div>
+                    <div class="text-muted text-center">Please search for the name of your process and begin editing it's sub-processes</div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>

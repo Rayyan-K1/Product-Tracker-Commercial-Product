@@ -1,0 +1,118 @@
+<div id="PlaceOrderPage" class="page-content">
+    <section id="subNavigationBar" class="row">
+        <div class="bg-blue text-white py-3 border-right col subNav" :class="selectedSubNavCategory ? subNavItem.id == selectedSubNavCategory.id ? 'selectedAdmin' : '' : ''" v-for="subNavItem in subNavigationCategories" v-on:click="selectedSubNavCategory = subNavItem">
+            <div class="text-center" v-on:click="subNavItem.id == 'orderLog' ? getAllOrders() : null">{{subNavItem.name}}</div>
+        </div>
+    </section>
+    <template v-if="selectedSubNavCategory ? selectedSubNavCategory.id == 'newOrder' : ''">
+        <div class="btn btn-outline-primary mt-5 mx-5" v-if="state != 'init'" v-on:click="goBack();">
+            Back
+        </div>
+        <template v-if="state == 'init'">
+            <section>
+                <div class="px-5">
+                    <div class="p-5 text-center bg-light" style="margin-top: 58px;">
+                        <h1 class="mb-3">Create New Order</h1>
+                        <div class="btn btn-outline-dark mb-3" v-on:click="$router.push('/Products')">Add New Product</div>
+                        <div class="container">
+                            <div class="d-flex justify-content-center">
+                                <div class="searchbar input-group mb-3">
+                                    <input class="search_input form-control" type="search" placeholder="Enter Product Name" v-model="search.Input">
+                                    <a href="#" class="search_icon"><i class="fas fa-search"></i></a>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="p-divider">
+                        <div class="p-divider">
+                            <div class="p-divider">
+                                <div class="row border-bottom border-light p-3 m-1" v-for="(order, orderIndex) in (search.Input ? searchOrdersData() : data)" :class="selectedProductIndex == orderIndex ? 'selected' : null" v-on:click="selectProduct(orderIndex, order)">
+                                    <div class="col-10 p-1" :id="orderIndex">
+                                        {{order.Name}} - £{{order.Price}}
+                                    </div>
+                                    <div class="col-2 p-1" v-if="selectedProductIndex == orderIndex">
+                                        <div class="btn btn-success btn-lg" style="width: 100%" v-on:click="switchPage('addOrder')">Place Order</div>
+                                    </div>
+                                </div>
+                                <hr />
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </section>
+        </template>
+        <template v-if="state == 'addOrder'">
+            <section>
+                <div class="px-5 pb-5">
+                    <div class="p-5 text-center bg-light" style="margin-top: 58px;">
+                        <h1 class="mb-3">Confirm Order</h1>
+                        <div class="text-danger mt-3">Please fill out the mandatory fields below (*)</div>
+                    </div>
+                    <div class="my-5 p-divider">
+                        <div class="p-divider">
+                            <div style="display: grid; grid-template-columns: repeat(3, 1fr); grid-gap: 10px;">
+                                <div style="grid-area: span 1 / span 3;">
+                                    <label>Price:</label>
+                                    <div class="input-group mb-3">
+                                        <input type="text" class="form-control disabled text-center" disabled="true" maxlength="8" placeholder="maximum text entry - 8 characters" v-bind:value="'£' + getPrice()" />
+                                    </div>
+                                </div>
+                                <div>
+                                    <label>Quantity:</label>
+                                    <div class="input-group mb-3">
+                                        <input type="number" class="form-control" placeholder="e.g: 3" v-model="newOrder.Quantity">
+                                    </div>
+                                </div>
+                                <div>
+                                    <label>Completed:</label>
+                                    <div class="input-group mb-3">
+                                        <select class="custom-select" v-model="newOrder.Completed">
+                                            <option selected value="true">True</option>
+                                            <option value="false">False</option>
+                                        </select>
+                                    </div>
+                                </div>
+                                <div>
+                                    <label>Completion Date?:</label>
+                                    <div class="input-group mb-3">
+                                        <input class="form-control" :class="canAddCompletionDate ? null : 'disabled'" type="datetime-local" v-model="newOrder.CompletionTimestamp" :disabled="!canAddCompletionDate">
+                                    </div>
+                                </div>
+                                <div>
+                                    <label>Select Production Process:</label>
+                                    <div class="input-group mb-3">
+                                        <select class="custom-select" v-model="newOrder.allocatedProductionProcess">
+                                            <option v-for="process in productionProcess" :value="process">{{process.ProductionProcessName}}</option>
+                                        </select>
+                                    </div>
+                                </div>
+                                <div>
+                                    <label>Progress:</label>
+                                    <div class="input-group mb-3">
+                                        <select class="custom-select" id="orderProgress" v-model="newOrder.Progress" :disabled="!newOrder.allocatedProductionProcess">
+                                            <option v-for="(stage, stageIndex) in selectedProductionProcessStages" :value="stageIndex + 1">{{stage.name}}</option>
+                                        </select>
+                                    </div>
+                                </div>
+                                <div>
+                                    <label>Customer:</label>
+                                    <div class="input-group mb-3">
+                                        <select class="custom-select" id="orderCustomer" v-model="newOrder.Customer">
+                                            <option v-for="(customer, customerIndex) in getCustomers()" :value="customer.ID">{{customer.Title + " " + customer.FirstName + " " + customer.Surname}} ({{customer.EmailAddress}})</option>
+                                        </select>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="btn btn-primary w-100" :class="canConfirmOrder ? null : 'disabled'" v-on:click="canConfirmOrder ? addOrder(selectedProduct) : null">Confirm Order</div>
+                        </div>
+                    </div>
+                </div>
+            </section>
+        </template>
+    </template>
+    <div class="toast toast-order-added toast-custom hide" role="alert" data-delay="1500" style="display: flex;text-align: center;align-items: center;justify-content: center;align-content: center;">
+        <div>
+            <h6>Order has been confirmed successfully</h6>
+        </div>
+    </div>
+</div>

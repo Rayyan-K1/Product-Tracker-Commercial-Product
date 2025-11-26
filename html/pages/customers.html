@@ -1,0 +1,256 @@
+<div id="CustomersPage" class="page-content">
+    <section id="subNavigationBar" class="row">
+        <div class="bg-blue text-white py-3 border-right col subNav" :class="selectedSubNavCategory ? subNavItem.id == selectedSubNavCategory.id ? 'selectedAdmin' : '' : ''" v-for="subNavItem in subNavigationCategories" v-on:click="selectedSubNavCategory = subNavItem">
+            <div class="text-center">{{subNavItem.name}}</div>
+        </div>
+    </section>
+    <section id="content">
+        <template v-if="selectedSubNavCategory ? selectedSubNavCategory.id == 'registerNew' : ''">
+            <div class="pb-5 px-5 p-divider">
+                <div class="p-5 text-center bg-light" style="margin-top: 58px;">
+                    <h1 class="mb-3">Register New Customer</h1>
+                    <div class="text-danger mt-3" v-if="canRegisterNewCustomer">Please fill out the mandatory fields below (*)</div>
+                </div>
+                <div class="mt-5">
+                    <h5>
+                        Personal Details
+                    </h5>
+                    <div class="mt-4" style="display: grid; grid-template-columns: repeat(6, 1fr); grid-gap: 10px;">
+                        <div style="grid-area: span 1 / span 2;">
+                            <label>Title*:</label>
+                            <div class="input-group mb-3">
+                                <select class="custom-select" id="inputGroupSelect01" v-model="registerNewCustomer.title">
+                                    <option selected>Choose...</option>
+                                    <option value="Mr">Mr</option>
+                                    <option value="Mrs">Mrs</option>
+                                    <option value="Other">Other</option>
+                                </select>
+                            </div>
+                        </div>
+                        <div style="grid-area: span 1 / span 2;">
+                            <label>First Name*:</label>
+                            <div class="input-group mb-3">
+                                <input type="text" class="form-control" maxlength="50" placeholder="maximum text entry - 50 characters" v-model="registerNewCustomer.firstName">
+                            </div>
+                        </div>
+                        <div style="grid-area: span 1 / span 2;">
+                            <label>Surname*:</label>
+                            <div class="input-group mb-3">
+                                <input type="text" class="form-control" maxlength="50" placeholder="maximum text entry - 50 characters" v-model="registerNewCustomer.surname">
+                            </div>
+                        </div>
+                        <div style="grid-area: span 1 / span 2;">
+                            <label>Telephone*:</label>
+                            <div class="input-group mb-3">
+                                <input type="text" class="form-control" maxlength="50" placeholder="maximum text entry - 50 characters" v-model="registerNewCustomer.telephone">
+                            </div>
+                        </div>
+                        <div style="grid-area: span 1 / span 4;">
+                            <label>Email Address*:</label>
+                            <div class="input-group mb-3">
+                                <input type="text" class="form-control" maxlength="250" placeholder="maximum text entry - 250 characters" v-model="registerNewCustomer.emailAddress">
+                            </div>
+                        </div>
+                        <div style="grid-area: span 1 / span 3;">
+                            <label>Notes:</label>
+                            <div class="input-group mb-3">
+                                <textarea type="text" class="form-control" maxlength="250" placeholder="maximum text entry - 250 characters" v-model="registerNewCustomer.notes"></textarea>
+                            </div>
+                        </div>
+                        <div style="grid-area: span 1 / span 3;">
+                            <label>Address:</label>
+                            <div class="input-group mb-3">
+                                <textarea type="text" class="form-control" maxlength="250" placeholder="maximum text entry - 250 characters" v-model="registerNewCustomer.address"></textarea>
+                            </div>
+                        </div>
+                        <div style="grid-area: span 1 / span 4;">
+                            <hr>
+                            <div class="input-group mb-3">
+                                <div class="btn w-100" :class="darkTheme ? 'btn-light text-dark' : ' bg-brown text-light'" v-on:click="openPopup('addField');"><i class="pr-3 icon icon-plus-full"></i>Add Data Label</div>
+                            </div>
+                        </div>
+                        <div style="grid-area: span 1 / span 2;">
+                            <label>Postcode:</label>
+                            <div class="input-group mb-3">
+                                <input type="text" class="form-control" maxlength="8" placeholder="maximum text entry - 8 characters" v-model="registerNewCustomer.postcode" />
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div>
+                    <div style="display: grid; grid-template-columns: repeat(3, 1fr); grid-gap: 10px;">
+                        <div v-for="label in labels">
+                            <label>{{label.title}}:</label>
+                            <div class="input-group mb-3">
+                                <input type="text" class="form-control" :id="label.bindID" maxlength="50" placeholder="maximum text entry - 50 characters">
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="btn btn-primary w-100 mt-3" :class="canRegisterNewCustomer ? 'disabled' : null" :disabled="canRegisterNewCustomer" v-on:click="!canRegisterNewCustomer ? registerCustomer() : null;">Register Customer</div>
+            </div>
+        </template>
+        <template v-if="selectedSubNavCategory ? selectedSubNavCategory.id == 'lookup' : ''">
+            <div class="px-5 pb-5">
+                <div class="p-5 text-center bg-light" style="margin-top: 58px;">
+                    <h1 class="mb-3">Find Customer</h1>
+                    <div class="btn" :class="search.searchFilterMode == 'Name' ? 'btn-primary' : 'btn-outline-primary'" v-on:click="search.searchFilterMode = 'Name'">Search By Name</div>
+                    <div class="btn" :class="search.searchFilterMode == 'Email' ? 'btn-primary' : 'btn-outline-primary'" v-on:click="search.searchFilterMode = 'Email'">Search By Email</div>
+                    <div class="container mt-4">
+                        <div class="d-flex justify-content-center">
+                            <div class="searchbar input-group mb-3">
+                                <input class="search_input form-control" type="search" name="" placeholder="Search..." :placeholder="'Search By ' + search.searchFilterMode" v-model="search.searchInput">
+                                <a href="#" class="search_icon" v-on:click="searchCustomer()"><i class="fas fa-search"></i></a>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="container pt-3">
+                    <div>
+                        <div class="form">
+                            <template v-if="search.data">
+                                <div class="p-divider">
+                                    <div class="row border-bottom border-light p-3 m-1" v-for="(customer, customerIndex) in search.data" v-on:click="selectCustomer(customer); openPopup('viewCustomerDetails'); getTagsFromSelectedCustomer(customer);">
+                                        <div class="col-2" style="font-size: 25px;display: flex;justify-content: center;align-items: center;">
+                                            <i class="icon icon-user"></i>
+                                        </div>
+                                        <div class="col-1">
+                                        </div>
+                                        <div class="col-8">
+                                            <div class="row">
+                                                <div class="font-weight-bold">{{customer.Title + " " + customer.FirstName + " " + customer.Surname}}</div>
+                                            </div>
+                                            <div class="row">
+                                                <div class="text-muted"> ({{customer.EmailAddress}})</div>
+                                            </div>
+                                            <div class="row">
+                                                <div class="text-muted">{{customer.Address}}, {{customer.Postcode}}</div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </template>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </template>
+    </section>
+    <div class="toast toast-customer-registered toast-custom hide" role="alert" data-delay="1500" style="display: flex;text-align: center;align-items: center;justify-content: center;align-content: center;">
+        <div>
+            <h6>Customer has been registered successfully</h6>
+        </div>
+    </div>
+    <!-- Modals -->
+    <!-- Add Class Modal -->
+    <div class="modal fade" id="popup-addField" tabindex="-1" role="dialog" aria-hidden="true">
+        <div class="modal-dialog modal-dialog-centered modal-lg" role="document">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title">Add Class</h5>
+                    <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                        <span aria-hidden="true">&times;</span>
+                    </button>
+                </div>
+                <div class="modal-body">
+                    <label>Label of Data Input:</label>
+                    <div class="input-group mb-3">
+                        <input type="text" class="form-control" v-model="dynamicLabelData.title" maxlength="50" placeholder="maximum text entry - 50 characters">
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+                    <button type="button" class="btn btn-primary" v-on:click="addLabel();" data-dismiss="modal">Add Label</button>
+                </div>
+            </div>
+        </div>
+    </div>
+    <!-- View Customer Modal -->
+    <div class="modal fade" id="popup-viewCustomerDetails" tabindex="-1" role="dialog" aria-hidden="true">
+        <div class="modal-dialog modal-dialog-centered modal-lg" role="document">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title">View Customer</h5>
+                    <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                        <span aria-hidden="true">&times;</span>
+                    </button>
+                </div>
+                <div class="modal-body">
+                    <div class="mt-4" style="display: grid; grid-template-columns: repeat(6, 1fr); grid-gap: 10px;">
+                        <div style="grid-area: span 1 / span 6;">
+                            <label>Customer ID:</label>
+                            <div class="input-group mb-3">
+                                <input type="text" class="form-control text-center" placeholder="e.g: John" :value="search.selectedCustomer ? search.selectedCustomer.ID : null" disabled="true">
+                            </div>
+                        </div>
+                        <div style="grid-area: span 1 / span 2;">
+                            <label>Title*:</label>
+                            <div class="input-group mb-3">
+                                <select class="custom-select" id="inputGroupSelect01" disabled="true" :value="search.selectedCustomer ? search.selectedCustomer.Title : null">
+                                    <option selected>Choose...</option>
+                                    <option value="Mr">Mr</option>
+                                    <option value="Mrs">Mrs</option>
+                                    <option value="Other">Other</option>
+                                </select>
+                            </div>
+                        </div>
+                        <div style="grid-area: span 1 / span 2;">
+                            <label>First Name*:</label>
+                            <div class="input-group mb-3">
+                                <input type="text" class="form-control" :value="search.selectedCustomer ? search.selectedCustomer.FirstName : null" disabled="true">
+                            </div>
+                        </div>
+                        <div style="grid-area: span 1 / span 2;">
+                            <label>Surname*:</label>
+                            <div class="input-group mb-3">
+                                <input type="text" class="form-control" :value="search.selectedCustomer ? search.selectedCustomer.Surname : null" disabled="true">
+                            </div>
+                        </div>
+                        <div style="grid-area: span 1 / span 2;">
+                            <label>Telephone*:</label>
+                            <div class="input-group mb-3">
+                                <input type="text" class="form-control" :value="search.selectedCustomer ? search.selectedCustomer.Telephone : null" disabled="true">
+                            </div>
+                        </div>
+                        <div style="grid-area: span 1 / span 4;">
+                            <label>Email Address*:</label>
+                            <div class="input-group mb-3">
+                                <input type="text" class="form-control" :value="search.selectedCustomer ? search.selectedCustomer.EmailAddress : null" disabled="true">
+                            </div>
+                        </div>
+                        <div style="grid-area: span 1 / span 6;">
+                            <label>Notes:</label>
+                            <div class="input-group mb-3">
+                                <textarea type="text" class="form-control" :value="search.selectedCustomer ? search.selectedCustomer.Notes : null" disabled="true"></textarea>
+                            </div>
+                        </div>
+                        <div style="grid-area: span 1 / span 4;">
+                            <label>Address:</label>
+                            <div class="input-group mb-3">
+                                <textarea type="text" class="form-control" :value="search.selectedCustomer ? search.selectedCustomer.Address : null" disabled="true"></textarea>
+                            </div>
+                        </div>
+                        <div style="grid-area: span 1 / span 2;">
+                            <label>Postcode:</label>
+                            <div class="input-group mb-3">
+                                <input type="text" class="form-control" :value="search.selectedCustomer ? search.selectedCustomer.Postcode : null" disabled="true" />
+                            </div>
+                        </div>
+                        <div style="grid-area: span 1 / span 2;" v-for="label in search.selectedCustomerTags">
+                            <label>{{label.title[0]}}:</label>
+                            <div class="input-group mb-3">
+                                <input type="text" class="form-control" :id="label.bindID[0]" :value="label.value" disabled="true">
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+                    <template v-if="$root.userCredentials.admin == 1">
+                        <button type="button" class="btn btn-danger" data-dismiss="modal" v-on:click="deleteCustomer();">Delete Customer</button>
+                    </template>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>

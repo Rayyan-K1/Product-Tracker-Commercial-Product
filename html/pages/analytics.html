@@ -1,0 +1,76 @@
+<div id="AnalyticsPage" class="page-content">
+    <section id="subNavigationBar" class="row">
+        <div class="bg-blue text-white py-3 border-right col subNav" :class="selectedSubNavCategory ? subNavItem.id == selectedSubNavCategory.id ? 'selectedAdmin' : '' : ''" v-for="subNavItem in subNavigationCategories" v-on:click="selectedSubNavCategory = subNavItem; selectedSubNavCategory.id == 'charts' ? initialiseCharts() : initialise()">
+            <div class="text-center">{{subNavItem.name}}</div>
+        </div>
+    </section>
+    <template v-if="selectedSubNavCategory ? selectedSubNavCategory.id == 'analytics' : ''">
+        <div class="px-5 p-divider">
+            <div class="mt-5 p-divider">
+                <div style="display: grid; grid-template-columns: repeat(3, 1fr); grid-row-gap: 50px;">
+                    <div class="mx-5">
+                        <div class="card w-100 zoom" style="height: 35vh; cursor: pointer">
+                            <div class="card-body text-center d-flex align-items-center justify-content-center">
+                                <h3 class="px-3">{{checkCompletedOrders().length}} <span class="text-muted">Total Orders Completed</span></h3>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="mx-5">
+                        <div class="card w-100 zoom" style="height: 35vh; cursor: pointer">
+                            <div class="card-body text-center d-flex align-items-center justify-content-center">
+                                <h3 class="px-3 card-text">£{{checkTotalRevenue()}} <span class="text-muted">in Total Revenue</span></h3>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="mx-5">
+                        <div class="card w-100 zoom" style="height: 35vh; cursor: pointer">
+                            <div class="card-body text-center d-flex align-items-center justify-content-center">
+                                <h3 class="px-3 card-text">{{customers ? customers.length : 0}} <span class="text-muted">Total Customers</span></h3>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="mx-5">
+                        <div class="card w-100 zoom" style="height: 35vh; cursor: pointer">
+                            <div class="card-body text-center d-flex align-items-center justify-content-center">
+                                <h3 class="px-3 card-text">{{checkPendingOrders().length}} <span class="text-muted">Total Orders Pending</span></h3>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="mx-5">
+                        <div class="card w-100 zoom" style="height: 35vh; cursor: pointer">
+                            <div class="card-body text-center d-flex align-items-center justify-content-center">
+                                <h3 class="px-3 card-text">£{{checkPendingRevenue()}} <span class="text-muted">in Pending Revenue</span></h3>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </template>
+    <template v-if="selectedSubNavCategory ? selectedSubNavCategory.id == 'charts' : ''">
+        <section id=" content" class="p-4 p-divider">
+            <div class="h-100" style="display: grid; grid-template-columns: repeat(2, 1fr); grid-gap: 10px;">
+                <div style="grid-area: span 1 / span 1;">
+                    <canvas id="canvasID">
+
+                    </canvas>
+                </div>
+                <div style="grid-area: span 1 / span 1;">
+                    <canvas id="canvasTwoID">
+
+                    </canvas>
+                </div>
+                <div style="grid-area: span 1 / span 1;">
+                    <canvas id="canvasThreeID">
+
+                    </canvas>
+                </div>
+                <div style="grid-area: span 1 / span 1;">
+                    <canvas id="canvasFourID">
+
+                    </canvas>
+                </div>
+            </div>
+        </section>
+    </template>
+</div>

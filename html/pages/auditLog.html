@@ -1,0 +1,104 @@
+<div id="AuditPage" class="page-content">
+    <section id="subNavigationBar" class="row">
+        <div class="bg-blue text-white py-3 border-right col subNav" :class="selectedSubNavCategory ? subNavItem.id == selectedSubNavCategory.id ? 'selectedAdmin' : '' : ''" v-for="subNavItem in subNavigationCategories" v-on:click="selectedSubNavCategory = subNavItem">
+            <div class="text-center">{{subNavItem.name}}</div>
+        </div>
+    </section>
+    <section class="px-5 pb-5">
+        <div class="mt-5 p-divider" style="display: grid; grid-template-columns: repeat(3, 1fr); grid-gap: 10px;">
+            <div style="grid-area: span 1 / span 1;">
+                <div class="btn w-100" :class="selectedTab == 'orders' ? 'btn-primary' : 'btn-outline-primary'" v-on:click="selectedTab = 'orders'">All Orders</div>
+            </div>
+            <div style="grid-area: span 1 / span 1;">
+                <div class="btn w-100" :class="selectedTab == 'dispatchedOrders' ? 'btn-primary' : 'btn-outline-primary'" v-on:click="selectedTab = 'dispatchedOrders'">Dispatched Orders</div>
+            </div>
+            <div style="grid-area: span 1 / span 1;">
+                <div class="btn w-100" :class="selectedTab == 'customers' ? 'btn-primary' : 'btn-outline-primary'" v-on:click="selectedTab = 'customers'">All Customers</div>
+            </div>
+        </div>
+    </section>
+    <section class="px-5 pb-5">
+        <div class="p-divider">
+            <template v-if="selectedTab == 'orders'">
+                <table class="table">
+                    <thead class="thead-light">
+                        <tr class="text-center">
+                            <th scope="col">Order #</th>
+                            <th scope="col">Product Name</th>
+                            <th scope="col">Quantity</th>
+                            <th scope="col">Base Price</th>
+                            <th scope="col">Completion Date</th>
+                            <th scope="col">Customer</th>
+                            <th scope="col">Dispatched</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr class="text-center" v-for="order in orderData">
+                            <td>{{order.OrderNumber}}</td>
+                            <td>{{order.ProductName}}</td>
+                            <td>{{order.Quantity}}</td>
+                            <td>£{{order.PricePU}}</td>
+                            <td>{{order.CompletionDate}}</td>
+                            <td>{{getCustomerForOrder(order.CustomerID)}}</td>
+                            <td class="order.Dispatched == 'true' ? 'text-success' : 'text-danger'">{{order.Dispatched}}</td>
+                        </tr>
+                    </tbody>
+                </table>
+            </template>
+            <template v-if="selectedTab == 'dispatchedOrders'">
+                <table class="table">
+                    <thead class="thead-light">
+                        <tr class="text-center">
+                            <th scope="col">Order #</th>
+                            <th scope="col">Product Name</th>
+                            <th scope="col">Quantity</th>
+                            <th scope="col">Base Price</th>
+                            <th scope="col">Completion Date</th>
+                            <th scope="col">Customer</th>
+                            <th scope="col">Dispatched</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr class="text-center" v-for="order in orderData" v-if="order.Dispatched == 'true' ">
+                            <td>{{order.OrderNumber}}</td>
+                            <td>{{order.ProductName}}</td>
+                            <td>{{order.Quantity}}</td>
+                            <td>£{{order.PricePU}}</td>
+                            <td>{{order.CompletionDate}}</td>
+                            <td>{{getCustomerForOrder(order.CustomerID)}}</td>
+                            <td class="order.Dispatched == 'true' ? 'text-success' : 'text-danger'">{{order.Dispatched}}</td>
+                        </tr>
+                    </tbody>
+                </table>
+            </template>
+            <template v-if="selectedTab == 'customers'">
+                <table class="table">
+                    <thead class="thead-light">
+                        <tr class="text-center">
+                            <th scope="col">Title</th>
+                            <th scope="col">First Name</th>
+                            <th scope="col">Surname</th>
+                            <th scope="col">Email Address</th>
+                            <th scope="col">Address</th>
+                            <th scope="col">Postcode</th>
+                            <th scope="col">Contact Number</th>
+                            <th scope="col">Customer ID</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr class="text-center" v-for="customer in customers">
+                            <td>{{customer.Title}}</td>
+                            <td>{{customer.FirstName}}</td>
+                            <td>{{customer.Surname}}</td>
+                            <td>{{customer.EmailAddress}}</td>
+                            <td>{{customer.Address}}</td>
+                            <td>{{customer.Postcode}}</td>
+                            <td>{{customer.Telephone}}</td>
+                            <td>{{customer.ID}}</td>
+                        </tr>
+                    </tbody>
+                </table>
+            </template>
+        </div>
+    </section>
+</div>

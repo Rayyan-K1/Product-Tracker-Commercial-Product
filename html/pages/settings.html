@@ -1,0 +1,57 @@
+<div id="SettingsPage" class="page-content p-5">
+    <template v-if="state == 'init'">
+        <div class="block-title">Application Settings:</div>
+        <section class="py-3 pb-5">
+            <div class="btn btn-danger btn-lg w-100" v-on:click="openPopup('reset');">FACTORY RESET</div>
+        </section>
+        <div class="block-title">Subscriptions:</div>
+        <section class="py-3">
+            <div class="border border-color-black cursor-pointer" style="padding: 25px; border-radius: 10px;" v-on:click="changePage('subscription')">
+                <div class="float-left" style="display: contents;">Active Subscription: Basic</div>
+                <div class="float-right"><i class="icon icon-next-empty"></i></div>
+            </div>
+        </section>
+        <div class="modal fade" id="popup-reset" tabindex="-1" role="dialog" aria-hidden="true">
+            <div class="modal-dialog modal-dialog-centered modal-lg" role="document">
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <h5 class="modal-title">Confirm Reset</h5>
+                        <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                            <span aria-hidden="true">&times;</span>
+                        </button>
+                    </div>
+                    <div class="modal-body">
+                        <div class="text-center">Are you sure you want to reset all data?</div>
+                        <div class="text-muted text-center">This action is irreversible</div>
+                    </div>
+                    <div class="modal-footer">
+                        <button type="button" class="btn btn-secondary" data-dismiss="modal">Cancel</button>
+                        <button type="button" class="btn btn-danger" v-on:click="resetData();" data-dismiss="modal">Confirm Reset</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </template>
+    <template v-if="state == 'subscriptions'">
+        <div :style="'display: grid; grid-template-columns: repeat(1)', 1fr); grid-gap: 10px; text-align: center;'">
+            <template v-if="$root.userCredentials.admin == 1">
+                <div class="mx-5" :disabled="$root.userCredentials.admin == 1">
+                    <div class="card w-100 zoom" style="height: 50vh; cursor: pointer" v-on:click="changeState('CreateProcess')">
+                        <div class="card-body text-center d-flex align-items-center justify-content-center">
+                            <i class="icon icon-folder-add" style="font-size: 40px;"></i>
+                            <h3 class="px-3 card-text">Create New Process</h3>
+                        </div>
+                    </div>
+                </div>
+            </template>
+            <div class="mx-5">
+                <div class="card w-100 zoom" style="height: 50vh; cursor: pointer" v-on:click="changeState('ViewProcesses')">
+                    <div class="card-body text-center d-flex align-items-center justify-content-center">
+                        <i class="icon icon-edit" style="font-size: 40px;"></i>
+                        <h3 class="px-3 card-text">Edit Existing Process</h3>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </template>
+</div>

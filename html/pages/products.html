@@ -1,0 +1,199 @@
+<div id="ProductsPage" class="page-content">
+    <section id="subNavigationBar" class="row">
+        <div class="bg-blue text-white py-3 border-right col subNav" :class="selectedSubNavCategory ? subNavItem.id == selectedSubNavCategory.id ? 'selectedAdmin' : '' : ''" v-for="subNavItem in subNavigationCategories" v-on:click="selectedSubNavCategory = subNavItem">
+            <div class="text-center" v-on:click="subNavItem.id == 'catalogue' ? getData() : null">{{subNavItem.name}}</div>
+        </div>
+    </section>
+    <section id="content">
+        <template v-if="selectedSubNavCategory ? selectedSubNavCategory.id == 'addProduct' : ''">
+            <div class="pb-5 px-5 p-divider">
+                <div class="p-5 text-center bg-light" style="margin-top: 58px;">
+                    <h1 class="mb-3">New Product</h1>
+                    <div class="text-danger mt-3" v-if="canAddNewProduct">Please fill out the mandatory fields below (*)</div>
+                </div>
+                <div class="mt-5">
+                    <h5>
+                        Product Details
+                    </h5>
+                    <div class="mt-4" style="display: grid; grid-template-columns: repeat(6, 1fr); grid-gap: 10px;">
+                        <div style="grid-area: span 1 / span 2;">
+                            <label>Product Name:</label>
+                            <div class="input-group mb-3">
+                                <input type="text" class="form-control" placeholder="maximum text entry - 50 characters" maxlength="50" v-model="addNewProduct.ProductName">
+                            </div>
+                        </div>
+                        <div style="grid-area: span 1 / span 2;">
+                            <label>Select Category:</label>
+                            <div class="input-group mb-3">
+                                <select class="custom-select" v-model="addNewProduct.Category">
+                                    <option :value="category.categoryName" v-for="category in categories">{{category.categoryName}}</option>
+                                </select>
+                            </div>
+                        </div>
+                        <div style="grid-area: span 1 / span 2;">
+                            <label>Base Price:</label>
+                            <div class="input-group mb-3">
+                                <input type="text" class="form-control" placeholder="e.g: £13.48" v-model="addNewProduct.ProductPrice" v-on:blur="checkValueAgainstRange('price')">
+                            </div>
+                        </div>
+                        <div style="grid-area: span 1 / span 6;">
+                            <label>Product Description:</label>
+                            <div class="input-group mb-3">
+                                <textarea type="text" class="form-control" placeholder="maximum text entry - 250 characters" maxlength="250" v-model="addNewProduct.ProductDescription"></textarea>
+                            </div>
+                        </div>
+                        <div style="grid-area: span 1 / span 6;">
+                            <div class="input-group mb-3">
+                                <div class="btn btn-primary w-100" :disabled="canAddNewProduct" :class="canAddNewProduct ? 'disabled' : null" v-on:click="canAddNewProduct ? null : addNewProductToList();">Add New Product</div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </template>
+        <template v-if="selectedSubNavCategory ? selectedSubNavCategory.id == 'catalogue' : ''">
+            <div class="pb-5 px-5">
+                <div class="p-5 text-center bg-light" style="margin-top: 58px;">
+                    <h1 class="mb-3">View Product</h1>
+                    <div class="container">
+                        <div class="d-flex justify-content-center">
+                            <div class="searchbar input-group mb-3">
+                                <input class="search_input form-control" type="search" placeholder="Enter Product Name" v-model="search.Input">
+                                <a href="#" class="search_icon" v-on:click="searchCustomer()"><i class="fas fa-search"></i></a>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="my-2 p-divider">
+                    <div class="card border-light mt-5" style="max-width: 100%;" v-for="product in (search.Input ? searchProductsData() : data)">
+                        <div class="card-header">#{{product.OrderNumber}}</div>
+                        <div class="card-body text-dark">
+                            <h5 class="card-title text-center">{{product.Name}}</h5>
+                            <!-- <p class="card-text text-center">{{product.Description}}</p> -->
+                            <div class="row">
+                                <div class="btn btn-danger mx-1 col" v-on:click="deleteProduct(product)">
+                                    Delete Product
+                                </div>
+                                <div class="btn btn-primary mx-1 col" v-on:click="openPopup('viewProduct'); selectedProduct = product; isEdit = true;">
+                                    Edit Product
+                                </div>
+                            </div>
+                            <div class="row mt-3">
+                                <div class="btn btn-light btn-lg col" v-on:click="openPopup('viewProduct'); selectedProduct = product; isEdit = false;">
+                                    View Product
+                                </div>
+                            </div>
+                            <!-- <div class="progress" style="height: 30px;">
+                                <div class="progress-bar" role="progressbar" :style="'width: ' + product.Progress.trim() + '%'">{{product.Progress}}%</div>
+                            </div> -->
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </template>
+    </section>
+    <div class="toast toast-product-added toast-custom hide" role="alert" data-delay="1500" style="display: flex;text-align: center;align-items: center;justify-content: center;align-content: center;">
+        <div>
+            <h6>Product has been added successfully</h6>
+        </div>
+    </div>
+    <!-- Modals -->
+    <!-- Add Class Modal -->
+    <div class="modal fade" id="popup-addCategory" tabindex="-1" role="dialog" aria-hidden="true">
+        <div class="modal-dialog modal-dialog-centered modal-lg" role="document">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title">Add Custom Product Feature</h5>
+                    <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                        <span aria-hidden="true">&times;</span>
+                    </button>
+                </div>
+                <div class="modal-body">
+                    <div class="form-group">
+                        <label>Custom Product Feature Name:</label>
+                        <input type="text" class="form-control" placeholder="Enter Product Feature Name">
+                        <small class="form-text text-muted">The name of your Product Feature. This can be customised</small>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+                    <button type="button" class="btn btn-primary">Save changes</button>
+                </div>
+            </div>
+        </div>
+    </div>
+    <!-- View Product Modal -->
+    <div class="modal fade" id="popup-viewProduct" tabindex="-1" role="dialog" aria-hidden="true" :key="reload">
+        <div class="modal-dialog modal-dialog-centered modal-lg" role="document">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title">View Product</h5>
+                    <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                        <span aria-hidden="true">&times;</span>
+                    </button>
+                </div>
+                <div class="modal-body">
+                    <div style="display: grid; grid-template-columns: repeat(6, 1fr); grid-gap: 10px;">
+                        <div style="grid-area: span 1 / span 3;">
+                            <div class="form-group">
+                                <label>Product Name:</label>
+                                <input type="text" id="productName" class="form-control" maxlength="50" :placeholder="selectedProduct ? selectedProduct.Name : null" :disabled="!isEdit">
+                                <small class="form-text text-muted">Product Identifier</small>
+                            </div>
+                        </div>
+                        <div style="grid-area: span 1 / span 3;">
+                            <div class="form-group">
+                                <label>Product Price:</label>
+                                <input type="text" id="productPrice" class="form-control" :placeholder="selectedProduct ? '£' + selectedProduct.Price :null" :disabled="!isEdit" v-on:blur="checkValueAgainstRange('price')">
+                                <small class="form-text text-muted">Product Price</small>
+                            </div>
+                        </div>
+                        <div style="grid-area: span 1 / span 3;">
+                            <div class="form-group">
+                                <label>Order Number:</label>
+                                <input type="text" id="productOrderNumber" class="form-control" :placeholder="selectedProduct ? '#' +  selectedProduct.OrderNumber :null" disabled="true">
+                                <small class="form-text text-muted">Unique Identifier</small>
+                            </div>
+                        </div>
+                        <div style="grid-area: span 1 / span 3;">
+                            <div class="form-group">
+                                <label>Product Category:</label>
+                                <template v-if="!isEdit">
+                                    <input type="text" id="productCategory" class="form-control" :placeholder="selectedProduct ? selectedProduct.Category : null" :disabled="!isEdit">
+                                    <small class="form-text text-muted">Product Identifier</small>
+                                </template>
+                                <template v-else>
+                                    <div class="input-group mb-3">
+                                        <select id="productCategory" class="custom-select">
+                                            <option :value="category.categoryName" v-for="category in categories" :selected="selectedProduct ? selectedProduct.Category == category.categoryName ? true : false : null">{{category.categoryName}}</option>
+                                        </select>
+                                    </div>
+                                </template>
+                            </div>
+                        </div>
+                        <div style="grid-area: span 1 / span 6;">
+                            <div class="form-group">
+                                <label>Product Description:</label>
+                                <textarea id="productDescription" class="form-control" maxlength="250" :placeholder="selectedProduct ? selectedProduct.Description: null" :disabled="!isEdit"></textarea>
+                                <small class="form-text text-muted">Product Description</small>
+                            </div>
+                        </div>
+                        <!-- <div style="grid-area: span 1 / span 3;">
+                            <div class="form-group">
+                                <label>Product Features:</label>
+                                <input type="text" id="productFeatures" class="form-control" :placeholder="selectedProduct ?  selectedProduct.ProductFeatures :null" :disabled="!isEdit">
+                                <small class="form-text text-muted">Unique Identifier</small>
+                            </div>
+                        </div> -->
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+                    <template v-if="isEdit">
+                        <button type="button" class="btn btn-primary" data-dismiss="modal" v-on:click="saveUpdatedProduct()">Save changes</button>
+                    </template>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>

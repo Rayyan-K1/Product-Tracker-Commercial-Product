@@ -1,0 +1,135 @@
+<div id="updateOrderStatusPage" class="page-content">
+    <section id="subNavigationBar" class="row">
+        <div class="bg-blue text-white py-3 border-right col subNav" :class="selectedSubNavCategory ? subNavItem.id == selectedSubNavCategory.id ? 'selectedAdmin' : '' : ''" v-for="subNavItem in subNavigationCategories" v-on:click="selectedSubNavCategory = subNavItem">
+            <div class="text-center">{{subNavItem.name}}</div>
+        </div>
+    </section>
+    <section id="content">
+        <template v-if="selectedSubNavCategory ? selectedSubNavCategory.id == 'trackOrders' : ''">
+            <div class="btn btn-outline-primary mt-5 mx-5" v-if="state != 'init'" v-on:click="goBack();">
+                Back
+            </div>
+            <template v-if="state == 'init'">
+                <div class="pb-5 px-5">
+                    <div class="p-5 text-center bg-light" style="margin-top: 58px;">
+                        <h1 class="mb-3">Track Customer Orders</h1>
+                        <div class="container">
+                            <div class="d-flex justify-content-center">
+                                <div class="searchbar input-group mb-3">
+                                    <input class="search_input form-control" type="search" placeholder="Enter Customer Number, e.g. customer_daafaabc-b34a-4583-bad4-be567f7daed2" v-model="search.searchInput">
+                                    <a href="#" class="search_icon" v-on:click="trackCustomerOrders();"><i class="fas fa-search"></i></a>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="container pt-3">
+                        <div>
+                            <div class="p-divider pt-3" v-if="search.searchInput">
+                                <template v-if="search.searchResults.length > 0">
+                                    <div class="row border-bottom border-light p-3 m-1" v-for="(order, orderIndex) in search.searchResults" :class="selectedOrderIndex == orderIndex ? 'selected' : null" v-on:click="selectOrder(orderIndex, order)">
+                                        <div class="col-10 p-1" :id="orderIndex">
+                                            {{order.ProductName}} - £{{order.PricePU}}
+                                        </div>
+                                    </div>
+                                </template>
+                                <template v-else>
+                                    <div class="col text-center font-weight-bolder">
+                                        <h6>No Customer Orders To Show</h6>
+                                    </div>
+                                </template>
+                                <hr />
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </template>
+            <template v-if="state == 'viewOrder'">
+                <div class="pb-5 px-5">
+                    <div class="p-5 text-center bg-light" style="margin-top: 58px;">
+                        <h1 class="mb-3">Alter Order Status</h1>
+                        <div class="btn btn-primary" v-on:click="editOrderStatus()" v-if="!isEdit">Edit Order Status</div>
+                    </div>
+                    <div class="my-5 p-divider">
+                        <h5>
+                            Order Details
+                        </h5>
+                        <div class="mt-5" style="display: grid; grid-template-columns: repeat(6, 1fr); grid-gap: 10px;">
+                            <div style="grid-area: span 1 / span 2;">
+                                <label>Title:</label>
+                                <div class="input-group mb-3">
+                                    <select class="custom-select" id="inputGroupSelect01" disabled="true">
+                                        <option value="Mr">Mr</option>
+                                    </select>
+                                </div>
+                            </div>
+                            <div style="grid-area: span 1 / span 2;">
+                                <label>Completed:</label>
+                                <div class="input-group mb-3" disabled="true">
+                                    <select class="custom-select disabled" id="inputGroupSelect01" v-model="selectedOrder.Completed" disabled="true">
+                                        <option value="true">True</option>
+                                        <option value="false">False</option>
+                                    </select>
+                                </div>
+                            </div>
+                            <div style="grid-area: span 1 / span 2;">
+                                <label>Completion Date:</label>
+                                <div class="input-group mb-3">
+                                    <input type="datetime-local" class="form-control" placeholder="e.g: John" :value="selectedOrder.CompletionDate" disabled="true">
+                                </div>
+                            </div>
+                            <div style="grid-area: span 1 / span 2;">
+                                <label>Order Number:</label>
+                                <div class="input-group mb-3">
+                                    <input type="text" class="form-control" placeholder="e.g: John" :value="selectedOrder.OrderNumber" disabled="true">
+                                </div>
+                            </div>
+                            <div style="grid-area: span 1 / span 2;">
+                                <label>Price P/U:</label>
+                                <div class="input-group mb-3">
+                                    <input type="text" class="form-control" placeholder="e.g: John" :value="selectedOrder.PricePU" disabled="true">
+                                </div>
+                            </div>
+                            <div style="grid-area: span 1 / span 2;">
+                                <label>Product Name:</label>
+                                <div class="input-group mb-3">
+                                    <input type="text" class="form-control" placeholder="e.g: John" :value="selectedOrder.ProductName" disabled="true">
+                                </div>
+                            </div>
+                            <div style="grid-area: span 1 / span 2;">
+                                <label>Quantity:</label>
+                                <div class="input-group mb-3">
+                                    <input type="text" class="form-control" placeholder="e.g: John" :value="selectedOrder.Quantity" disabled="true">
+                                </div>
+                            </div>
+                            <div style="grid-area: span 1 / span 4;">
+                                <label>Product Description:</label>
+                                <div class="input-group mb-3">
+                                    <textarea type="text" class="form-control" placeholder="e.g: John" :value="selectedOrder.ProductDescription" disabled="true"></textarea>
+                                </div>
+                            </div>
+                            <div style="grid-area: span 1 / span 3;">
+                                <label>Current Production Process:</label>
+                                <div class="input-group mb-3">
+                                    <input type="text" class="form-control" :placeholder="productionProcess" disabled="true">
+                                </div>
+                            </div>
+                            <div style="grid-area: span 1 / span 3;">
+                                <label>Progress:</label>
+                                <div class="input-group mb-3">
+                                    <select class="custom-select" :disabled="!isEdit" id="orderProgress">
+                                        <option v-for="(stage, stageIndex) in productionProcessStages" :value="stageIndex + 1">Stage: {{stage.name}} ({{stage.stage}})</option>
+                                    </select>
+                                </div>
+                            </div>
+                            <div style="grid-area: span 1 / span 6;">
+                                <div class="input-group mb-3">
+                                    <div class="btn btn-success" v-on:click="saveUpdatedOrderStatus()" v-if="isEdit">Save Order Status</div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </template>
+        </template>
+    </section>
+</div>

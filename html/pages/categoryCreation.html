@@ -1,0 +1,36 @@
+<div id="CategoryCreationPage" class="page-content">
+    <section id="subNavigationBar" class="row">
+        <div class="bg-blue text-white py-3 border-right col subNav" :class="selectedSubNavCategory ? subNavItem.id == selectedSubNavCategory.id ? 'selectedAdmin' : '' : ''" v-for="subNavItem in subNavigationCategories" v-on:click="selectedSubNavCategory = subNavItem">
+            <div class="text-center">{{subNavItem.name}}</div>
+        </div>
+    </section>
+    <section id="content">
+        <template v-if="selectedSubNavCategory ? selectedSubNavCategory.id == 'addCategory' : ''">
+            <div class="px-5">
+                <div class="p-5 text-center bg-light" style="margin-top: 58px;">
+                    <h1 class="mb-3">Add New Category</h1>
+                </div>
+                <div class="p-5" style="display: grid; grid-template-columns: repeat(1, 1fr); grid-gap: 10px;">
+                    <div id="categoryName" style="grid-area: span 1 / span 1;">
+                        <div class="pb-4">
+                            <label>Category Name:</label>
+                            <div class="input-group mb-3">
+                                <input type="text" class="form-control" maxlength="50" placeholder="maximum text entry - 50 characters" v-model="addNewCategory.categoryName">
+                            </div>
+                        </div>
+                    </div>
+                    <div id="admin" style="grid-area: span 1 / span 2;">
+                        <div class="pb-4">
+                            <div class="btn btn-primary w-100 mt-3" :class="canAddCategory ? null : 'disabled'" v-on:click="canAddCategory ? addCategory() : null;">Add Category</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </template>
+    </section>
+    <div class="toast toast-category-added toast-custom hide" role="alert" data-delay="1500" style="display: flex;text-align: center;align-items: center;justify-content: center;align-content: center;">
+        <div>
+            <h6>Category has been added successfully</h6>
+        </div>
+    </div>
+</div>
