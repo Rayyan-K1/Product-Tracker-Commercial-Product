@@ -1,0 +1,202 @@
+<head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    <meta content="width=device-width, initial-scale=1" name="viewport" />
+    <!-- JQuery -->
+    <script src="src/frameworks/JQuery.js"></script>
+    <!-- BootStrap -->
+    <!-- CSS only -->
+    <!-- <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.2.2/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-Zenh87qX5JnK2Jl0vWa8Ck2rdkQ2Bzep5IDxbcnCeuOxjzrPF/et3URy9Bv1WTRi" crossorigin="anonymous"> -->
+    <!-- <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css" integrity="sha384-JcKb8q3iqJ61gNV9KGb8thSsNjpSL0n8PARn9HuZOnIxN0hoP+VmmDGMN5t9UJ0Z" crossorigin="anonymous"> -->
+    <link rel="stylesheet" type="text/css" href="src/frameworks/bootstrap.css">
+    <script src="src/frameworks/Popper.js"></script>
+    <script src="src/frameworks/Bootstrap.js"></script>
+    <!-- Vue.js -->
+    <script src="src/frameworks/vue/vue.js"></script>
+    <script src="src/frameworks/vue/router.js"></script>
+    <!-- Charts.js -->
+    <script src="src/frameworks/Charts.js"></script>
+    <!-- Underscore.js -->
+    <script src="src/frameworks/underscore.js"></script>
+    <!-- Day.js -->
+    <script src="src/frameworks/day.js"></script>
+    <script src="src/frameworks/utcPlugin.js"></script>
+    <script>
+        dayjs.extend(window.dayjs_plugin_utc)
+    </script>
+    <!-- CSS Links -->
+    <link rel="stylesheet" type="text/css" href="src/css/styles.css">
+    <link rel="stylesheet" type="text/css" href="src/css/style.css">
+
+    <link rel="stylesheet" href="https://use.fontawesome.com/releases/v5.5.0/css/all.css" integrity="sha384-B4dIYHKNBt8Bc12p+WXckhzcICo0wtJAoU8YZTY5qE0Id1GSseTk6S+L3BlXeVIU" crossorigin="anonymous">
+
+    <!-- Webpage Title -->
+    <title>Savile19</title>
+    <link rel="icon" type="image" href="src/resources/savile19_Logo.png" />
+</head>
+
+<body>
+    <div id="app">
+        <!-- <div class="w-100 bg-dark">
+            <div class="spinner-border" style="position: fixed; top:50%; left: 50%; z-index: 9000000000" role="status">
+                <span class="sr-only">Loading...</span>
+            </div>
+        </div> -->
+        <div :class="loading ? 'loading' : ''">
+        </div>
+        <template v-if="isUserLoggedIn && businessSelected">
+            <nav class="navbar-side" style="max-height: calc(90%); overflow-y: scroll;">
+                <ul class="list-group list-group-flush w-100">
+                    <li class="list-group-item list-title" style="padding-top: 12px; padding-bottom: 12px;">
+                        <i class="icon icon-user pr-3 pl-1"></i>
+                        <span>{{userCredentials.username}}</span>
+                        <div class="text-muted pl-5" style="font-size: 13px !important">{{businessSelected.BusinessName}}</div>
+                    </li>
+                    <div class="nav-group">
+                        User
+                    </div>
+                    <!-- <router-link to="/Dashboard" class="list-group-item list-item-custom pl-5" :class="$route.name == 'Dashboard' ? 'selected' : null">
+                        <i class="icon icon-next-clear pr-3 pl-1"></i>
+                        Dashboard
+                    </router-link> -->
+                    <router-link to="/Settings" class="list-group-item list-item-custom pl-5" :class="$route.name == 'Settings' ? 'selected' : null">
+                        <i class="icon icon-next-clear pr-3 pl-1"></i>
+                        Settings
+                    </router-link>
+                    <div class="nav-group">
+                        Create / Manage
+                    </div>
+                    <router-link to="/Products" class="list-group-item list-item-custom pl-5" :class="$route.name == 'Products' ? 'selected' : null">
+                        <i class="icon icon-next-clear pr-3 pl-1"></i>
+                        Products
+                    </router-link>
+                    <router-link to="/Production" class="list-group-item list-item-custom pl-5" :class="$route.name == 'Production' ? 'selected' : null">
+                        <i class="icon icon-next-clear pr-3 pl-1"></i>
+                        Production
+                    </router-link>
+                    <router-link to="/Customers" class="list-group-item list-item-custom pl-5" :class="$route.name == 'Customers' ? 'selected' : null">
+                        <i class="icon icon-next-clear pr-3 pl-1"></i>
+                        Customers
+                    </router-link>
+                    <div class="nav-group">
+                        Processing
+                    </div>
+                    <router-link to="/PlaceOrder" class="list-group-item list-item-custom pl-5" :class="$route.name == 'Place Order' ? 'selected' : null">
+                        <i class="icon icon-next-clear pr-3 pl-1"></i>
+                        Place Order
+                    </router-link>
+                    <router-link to="/OrderLog" class="list-group-item list-item-custom pl-5" :class="$route.name == 'Order Log' ? 'selected' : null">
+                        <i class="icon icon-next-clear pr-3 pl-1"></i>
+                        Order Log
+                    </router-link>
+                    <router-link to="/UpdateOrderStatus" class="list-group-item list-item-custom pl-5" :class="$route.name == 'Update Order Status' ? 'selected' : null">
+                        <i class="icon icon-next-clear pr-3 pl-1"></i>
+                        Update Customer Orders
+                    </router-link>
+                    <template v-if="userCredentials.admin == 1">
+                        <div class="nav-group">
+                            Administration
+                        </div>
+                        <router-link to="/Analytics" class="list-group-item pl-5 list-admin-item-custom text-white" :class="$route.name == 'Analytics' ? 'selectedAdmin' : null">
+                            <i class="icon icon-next-clear pr-3 pl-1"></i>
+                            Analytics
+                        </router-link>
+                        <router-link to="/ManageUsers" class="list-group-item pl-5 list-admin-item-custom text-white" :class="$route.name == 'Manage Users' ? 'selectedAdmin' : null">
+                            <i class="icon icon-next-clear pr-3 pl-1"></i>
+                            Manage Users
+                        </router-link>
+                        <router-link to="/CategoryCreation" class="list-group-item pl-5 list-admin-item-custom text-white" :class="$route.name == 'Category Creation' ? 'selectedAdmin' : null">
+                            <i class="icon icon-next-clear pr-3 pl-1"></i>
+                            Create Category
+                        </router-link>
+                        <router-link to="/AuditLog" class="list-group-item pl-5 list-admin-item-custom text-white" :class="$route.name == 'Audit Log' ? 'selectedAdmin' : null">
+                            <i class="icon icon-next-clear pr-3 pl-1"></i>
+                            Audit Log
+                        </router-link>
+                        <!-- <router-link to="/DepartmentCreation" class="list-group-item pl-5 list-admin-item-custom text-white" :class="$route.name == 'Department Creation' ? 'selectedAdmin' : null">
+                            <i class="icon icon-next-clear pr-3 pl-1"></i>
+                            Create Department
+                        </router-link> -->
+                    </template>
+                    <!-- <router-link to="/Settings" class="list-group-item list-item-custom pl-5 mb-6" style="position: fixed; bottom: 55px; width: 300px;" :class="$route.name == 'Settings' ? 'selected' : null">
+                        <i class="icon icon-settings pr-3 pl-1"></i>
+                        Settings
+                    </router-link> -->
+                    <div class="btn btn-outline-danger btn-lg list-group-item" style="position: fixed; bottom: 0; width: 300px;" v-on:click="logout()">
+                        <div>
+                            <i class="icon icon-log-out pr-3 pl-1"></i>
+                            Logout
+                        </div>
+                    </div>
+                </ul>
+            </nav>
+            <transition name="fade" mode="out-in">
+                <router-view></router-view>
+            </transition>
+        </template>
+        <template v-if="!isUserLoggedIn">
+            <div class="wrapper fadeInDown">
+                <div id="formContent">
+                    <div class="fadeIn first py-3">
+                        <img src="./src/resources/savile19_Logo.png" width="150px;" style="opacity: 0.8" />
+                    </div>
+                    <template v-if="businessSelected">
+                        <form>
+                            <input type="text" id="loginInputs" class="fadeIn first" name="login" placeholder="Enter Email" v-model="userCredentials.email">
+                            <input type="password" id="loginInputs" class="fadeIn second" name="login" placeholder="Enter Password" v-model="userCredentials.password">
+                            <input type="button" id="loginButton" class="fadeIn third mt-3 mb-3" style="cursor: pointer !important;" value="Log In" v-on:click="login(userCredentials.email, userCredentials.password);">
+                        </form>
+                        <div class="alert alert-danger" v-if="errorMessage">
+                            {{errorMessage}}
+                        </div>
+                    </template>
+                    <template v-else>
+                        <div class="btn bg-dark text-white mb-3 mt-2 btn-lg fadeIn second" style="width: 90%" v-on:click="openPopup('selectBusiness');">Select Your Business</div>
+                    </template>
+                </div>
+            </div>
+        </template>
+        <div class="modal fade" id="popup-selectBusiness" tabindex="-1" role="dialog" aria-hidden="true">
+            <div class="modal-dialog modal-dialog-centered modal-lg" role="document">
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <h5 class="modal-title">Select Your Business</h5>
+                        <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                            <span aria-hidden="true">&times;</span>
+                        </button>
+                    </div>
+                    <div class="modal-body">
+                        <div class="py-3">
+                            <input type="text" id="loginInputs" class="cursor-text w-100 mb-3" placeholder="Search Business Name" v-model="search.input">
+                            <div class="cursor-pointer" v-for="(business, businessIndex) in (search.input ? searchByBusinessName() : businesses)" data-dismiss="modal" v-on:click="selectBusiness(business)">
+                                <div class="row px-3 mx-1">
+                                    <div class="col-12 px-1 text-center">
+                                        {{business.BusinessName}}
+                                    </div>
+                                </div>
+                                <hr />
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    <script src="src/js/rootObjects.js"></script>
+    <script src="src/js/dataTransfer.js"></script>
+    <script src="src/js/globalFunctions.js"></script>
+    <script src="src/js/pages/landingPage.js"></script>
+    <script src="src/js/pages/customers.js"></script>
+    <script src="src/js/pages/products.js"></script>
+    <script src="src/js/pages/orderLog.js"></script>
+    <script src="src/js/pages/placeOrder.js"></script>
+    <script src="src/js/pages/updateOrderStatus.js"></script>
+    <script src="src/js/pages/categoryCreation.js"></script>
+    <script src="src/js/pages/departmentCreation.js"></script>
+    <script src="src/js/pages/auditLog.js"></script>
+    <script src="src/js/pages/dashboard.js"></script>
+    <script src="src/js/pages/manageUsers.js"></script>
+    <script src="src/js/pages/settings.js"></script>
+    <script src="src/js/pages/analytics.js"></script>
+    <script src="src/js/pages/production.js"></script>
+    <script src="src/js/index.js"></script>
+</body>
